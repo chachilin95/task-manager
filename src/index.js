@@ -10,7 +10,7 @@ const port = process.env.PORT || 8080;
 
 app.use(express.json());
 
-app.get('/users', (req, res) => {
+app.get('/users', (_req, res) => {
     User.find({}).then((users) => {
         res.send(users);
     }).catch((error) => {
@@ -19,9 +19,9 @@ app.get('/users', (req, res) => {
 });
 
 app.get('/users/:id', (req, res) => {
-    const _id = req.params.id;
+    const id = req.params.id;
 
-    User.findById(_id).then((user) => {
+    User.findById(id).then((user) => {
         if (!user) {
             return res.status(404).send();
         }
@@ -29,7 +29,28 @@ app.get('/users/:id', (req, res) => {
     }).catch((error) => {
         res.status(500).send(error);
     });
-})
+});
+
+app.get('/tasks', (_req, res) => {
+    Task.find({}).then((tasks) => {
+        res.send(tasks);
+    }).catch((error) => {
+        res.status(500).send(error);
+    });
+});
+
+app.get('/tasks/:id', (req, res) => {
+    const id = req.params.id;
+
+    Task.findById(id).then((task) => {
+        if (!task) {
+            return res.send(404).send();
+        }
+        res.send(task);
+    }).catch((error) => {
+        res.status(500).send(error);
+    })
+});
 
 app.post('/users', (req, res) => {
     const user = new User(req.body);
