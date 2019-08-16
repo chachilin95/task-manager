@@ -42,7 +42,21 @@ app.post('/users', async (req, res) => {
         await user.save();
         res.status(201).send(user);
     } catch (error) {
-        res.status(400).send(error);
+        res.status(500).send(error);
+    }
+});
+
+// delete user by id
+app.delete('/users/:id', async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+
+        if (!user) {
+            return res.status(404).send();
+        }
+        res.send(user);
+    } catch (error) {
+        res.status(500).send(error);
     }
 });
 
@@ -59,9 +73,9 @@ app.patch('/users/:id', async (req, res) => {
     }
 
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, { 
-            new: true, 
-            runValidators: true 
+        const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
         });
 
         if (!user) {
@@ -110,6 +124,20 @@ app.post('/tasks', async (req, res) => {
     }
 });
 
+// delete task by id
+app.delete('/tasks/:id', async (req, res) => {
+    try {
+        const task = await Task.findByIdAndDelete(req.params.id);
+
+        if (!task) {
+            return res.status(404).send();
+        }
+        res.send(task);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
 // update task by id
 app.patch('/tasks/:id', async (req, res) => {
 
@@ -123,9 +151,9 @@ app.patch('/tasks/:id', async (req, res) => {
     }
 
     try {
-        const task = await Task.findByIdAndUpdate(req.params.id, req.body, { 
-            new: true, 
-            runValidators: true 
+        const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
         });
 
         if (!task) {
