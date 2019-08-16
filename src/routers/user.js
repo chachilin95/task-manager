@@ -31,11 +31,21 @@ router.get('/users/:id', async (req, res) => {
 router.post('/users', async (req, res) => {
     try {
         const user = new User(req.body);
-
         await user.save();
         res.status(201).send(user);
     } catch (error) {
-        res.status(500).send(error);
+        res.status(400).send(error);
+    }
+});
+
+// login user
+router.post('/users/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findByCredentials(email, password);
+        res.send(user);
+    } catch (error) {
+        res.status(400).send();
     }
 });
 
