@@ -2,15 +2,11 @@ const express = require('express');
 const router = new express.Router();
 
 const User = require('../models/user');
+const auth = require('../middleware/auth');
 
-// get all users
-router.get('/users', async (_req, res) => {
-    try {
-        const users = await User.find({});
-        res.send(users);
-    } catch (error) {
-        res.status(500).send(error);
-    }
+// get logged in user's information
+router.get('/users/me', auth, async (req, res) => {
+    res.send(req.user);
 });
 
 // get user by id
@@ -30,7 +26,7 @@ router.get('/users/:id', async (req, res) => {
 // signup new user
 router.post('/users', async (req, res) => {
     const user = new User(req.body);
-    
+
     try {
         await user.save();
         const token = await user.generateAuthToken();
