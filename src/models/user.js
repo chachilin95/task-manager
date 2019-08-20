@@ -49,6 +49,13 @@ const userSchema = new mongoose.Schema({
     }]
 });
 
+// form relationship between User and Task IDs
+userSchema.virtual('tasks', {
+    ref: 'Task',
+    localField: '_id',
+    foreignField: 'owner'
+});
+
 // locate user to login
 userSchema.statics.findByCredentials = async (email, password) => {
     
