@@ -5,7 +5,7 @@ const validator = require('validator');
 
 const Task = require('./task');
 
-const userSchema = new mongoose.Schema({
+const definition = {
     name: {
         type: String,
         required: true,
@@ -49,7 +49,13 @@ const userSchema = new mongoose.Schema({
             required: true
         }
     }]
-});
+};
+
+const options = {
+    timestamps: true
+};
+
+const userSchema = new mongoose.Schema(definition, options);
 
 // form relationship between User and Task IDs
 userSchema.virtual('tasks', {
