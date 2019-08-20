@@ -74,22 +74,18 @@ router.post('/users/logoutAll', auth, async (req, res) => {
     }
 });
 
-// delete user by id
-router.delete('/users/:id', async (req, res) => {
+// delete logged in user
+router.delete('/users/me', auth, async (req, res) => {
     try {
-        const user = await User.findByIdAndDelete(req.params.id);
-
-        if (!user) {
-            return res.status(404).send();
-        }
-        res.send(user);
+        await req.user.remove();
+        res.send(req.user);
     } catch (error) {
         res.status(500).send(error);
     }
 });
 
-// update user by id
-router.patch('/users/:id', async (req, res) => {
+// update logged in user
+router.patch('/users/me', auth, async (req, res) => {
 
     // determine if update is valid
     const updates = Object.keys(req.body);
@@ -101,16 +97,9 @@ router.patch('/users/:id', async (req, res) => {
     }
 
     try {
-        const user = await User.findById(req.params.id);
-
-        updates.forEach((update) => user[update] = req.body[update]);
-        await user.save();
-
-        if (!user) {
-            return res.status(404).send();
-        }
-
-        res.send(user);
+        updates.forEach((update) => req.user[update] = req.body[update]);
+        await req.user.save();
+        res.send(req.user);
     } catch (error) {
         res.status(400).send(error);
     }
