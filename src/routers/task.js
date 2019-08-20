@@ -14,10 +14,18 @@ router.get('/tasks', auth, async (req, res) => {
     }
 
     // set options
-    const options = {
-        limit: parseInt(req.query.limit),
-        skip: parseInt(req.query.skip)
-    };
+    const options = {};
+    if (req.query.limit) {
+        options.limit = parseInt(req.query.limit);
+    }
+    if (req.query.skip) {
+        options.skip = parseInt(req.query.skip);
+    }
+    if (req.query.sortBy) {
+        const [field, order] = req.query.sortBy.split(':');
+        options.sort = {};
+        options.sort[field] = order === 'asc' ? 1 : -1;
+    }
 
     try {
         await req.user.populate({
