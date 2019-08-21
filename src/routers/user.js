@@ -24,6 +24,22 @@ router.get('/users/:id', async (req, res) => {
     }
 });
 
+// get user avatar
+router.get('/users/:id/avatar', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user || !user.avatar) {
+            throw new Error();
+        }
+
+        res.set('Content-Type', 'image/jpg');
+        res.send(user.avatar);
+    } catch (error) {
+        res.status(404).send();
+    }
+});
+
 // signup new user
 router.post('/users', async (req, res) => {
     const user = new User(req.body);
