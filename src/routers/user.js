@@ -3,6 +3,7 @@ const router = new express.Router();
 
 const User = require('../models/user');
 const auth = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
 // get logged in user's information
 router.get('/users/me', auth, async (req, res) => {
@@ -20,6 +21,22 @@ router.get('/users/:id', async (req, res) => {
         res.send(user);
     } catch (error) {
         res.status(500).send(error);
+    }
+});
+
+// get user avatar
+router.get('/users/:id/avatar', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user || !user.avatar) {
+            throw new Error();
+        }
+
+        res.set('Content-Type', 'image/jpg');
+        res.send(user.avatar);
+    } catch (error) {
+        res.status(404).send();
     }
 });
 
@@ -71,6 +88,26 @@ router.post('/users/logoutAll', auth, async (req, res) => {
         res.send();
     } catch (error) {
         res.status(500).send();
+    }
+});
+
+// upload new avatar for user
+router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
+    req.user.avatar = req.file.buffer;
+    await req.user.save();
+    res.send();
+}, (error, req, res, next) => {
+    res.status(400).send({ error: error.message });
+});
+
+// delete user's avatar
+router.delete('/users/me/avatar', auth, async (req, res) => {
+    try {
+        req.user.avatar = undefined;
+        await req.user.save();
+        res.send(req.user);
+    } catch (error) {
+        res.status(400).send(error);
     }
 });
 

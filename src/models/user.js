@@ -48,7 +48,10 @@ const definition = {
             type: String,
             required: true
         }
-    }]
+    }],
+    avatar: {
+        type: Buffer
+    }
 };
 
 const options = {
