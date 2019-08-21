@@ -102,7 +102,7 @@ userSchema.methods.toJSON = function () {
     const user = this;
     const userObject = user.toObject();
 
-    // remove private information
+    delete userObject.avatar;
     delete userObject.password;
     delete userObject.tokens;
 
