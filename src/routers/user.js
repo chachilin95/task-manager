@@ -4,6 +4,7 @@ const router = new express.Router();
 const User = require('../models/user');
 const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
+const { sendGoodbyeEmail, sendWelcomeEmail } = require('../emails/account');
 
 // get logged in user's information
 router.get('/users/me', auth, async (req, res) => {
@@ -46,6 +47,7 @@ router.post('/users', async (req, res) => {
 
     try {
         await user.save();
+        sendWelcomeEmail(user.email, user.name);
         const token = await user.generateAuthToken();
         res.status(201).send({ user, token });
     } catch (error) {
@@ -115,6 +117,7 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
 router.delete('/users/me', auth, async (req, res) => {
     try {
         await req.user.remove();
+        sendGoodbyeEmail(req.user.email, req.user.name);
         res.send(req.user);
     } catch (error) {
         res.status(500).send(error);
