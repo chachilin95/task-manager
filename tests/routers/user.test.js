@@ -10,7 +10,8 @@ beforeEach(async () => {
 });
 
 test('Should signup a new user', async () => {
-    const user = users[1];
+    const { name, email, password } = users[1];
+    const user = { email, password, name };
 
     await request(app)
         .post('/users')
@@ -34,4 +35,22 @@ test('Should not login non-existent user', async () => {
         .post('/users/login')
         .send(user)
         .expect(400);
+});
+
+test('Should get profile for user', async () => {
+    const user = users[0];
+    const token = user.tokens[0].token;
+
+    await request(app)
+        .get('/users/me')
+        .set('Authorization', `Bearer ${token}`)
+        .send()
+        .expect(200);
+});
+
+test('Should not get profile for unauthenticated user', async () => {
+    await request(app)
+        .get('/users/me')
+        .send()
+        .expect(401);
 });
