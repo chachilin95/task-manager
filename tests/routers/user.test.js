@@ -54,3 +54,21 @@ test('Should not get profile for unauthenticated user', async () => {
         .send()
         .expect(401);
 });
+
+test('Should delete account for user', async () => {
+    const user = users[0];
+    const token = user.tokens[0].token;
+
+    await request(app)
+        .delete('/users/me')
+        .set('Authorization', `Bearer ${token}`)
+        .send()
+        .expect(200);
+});
+
+test('Should not delete account for unauthenticated user', async () => {
+    await request(app)
+        .delete('/users/me')
+        .send()
+        .expect(401);
+});
