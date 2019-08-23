@@ -95,3 +95,57 @@ test('Should not delete account for unauthenticated user', async () => {
         .send()
         .expect(401);
 });
+
+test('Should upload avatar image', async () => {
+    const { _id, tokens } = users[0];
+    const token = tokens[0].token;
+
+    // assert successful upload
+    await request(app)
+        .post('/users/me/avatar')
+        .set('Authorization', `Bearer ${token}`)
+        .attach('avatar', 'tests/fixtures/profile-pic.jpg')
+        .expect(200);
+
+    // assert avatar was added to user
+    const user = await User.findById(_id);
+    expect(user.avatar).toEqual(expect.any(Buffer));
+});
+
+test('Should update user information', async () => {
+    const { _id, tokens } = users[0];
+    const token = tokens[0].token;
+
+    const newInfo = {
+        name: 'Bruce Wanye',
+        email: 'bat@man.com',
+    };
+
+    // assert successful update
+    await request(app)
+        .patch('/users/me')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newInfo)
+        .expect(200);
+
+    // assert changes were made
+    const user = await User.findById(_id);
+    expect(user.name).toEqual(newInfo.name);
+    expect(user.email).toEqual(newInfo.email);
+});
+
+test('Should not update invalid user information', async () => {
+    const { tokens } = users[0];
+    const token = tokens[0].token;
+
+    const newInfo = {
+        location: 'Gotham City'
+    };
+
+    // assert rejected update
+    await request(app)
+        .patch('/users/me')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newInfo)
+        .expect(400);
+});
