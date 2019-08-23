@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
-const objectIDs = new Array(3).fill(new mongoose.Types.ObjectId());
+const objectIDs = new Array(3).fill().map(() => new mongoose.Types.ObjectId());
 
 const users = [{
     _id: objectIDs[0],
