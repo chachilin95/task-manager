@@ -2,16 +2,15 @@ const request = require('supertest');
 
 const app = require('../../src/app');
 const User = require('../../src/models/user');
-const users = require('../fixtures/users');
 
-beforeEach(async () => {
-    await User.deleteMany(); // clear db
-    await new User(users[0]).save(); // add test user
-});
+const users = require('../fixtures/users');
+const { setupDatabase } = require('../fixtures/db');
+
+beforeEach(setupDatabase);
 
 test('Should signup a new user', async () => {
     const { email, password, name } = users[1];
-    
+
     // assert successful signup
     const sendUser = { email, password, name };
     const response = await request(app)
@@ -33,7 +32,7 @@ test('Should signup a new user', async () => {
 
 test('Should login an existing user', async () => {
     const { _id, email, password } = users[0];
-    
+
     // assert successful login
     const loginUser = { email, password };
     const response = await request(app)
