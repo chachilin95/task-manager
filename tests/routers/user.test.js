@@ -2,7 +2,7 @@ const request = require('supertest');
 
 const app = require('../../src/app');
 const User = require('../../src/models/user');
-const users = require('../fixtures/user');
+const users = require('../fixtures/users');
 
 beforeEach(async () => {
     await User.deleteMany(); // clear db
