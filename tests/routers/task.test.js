@@ -34,6 +34,23 @@ test('Should create task for user', async () => {
     expect(task.completed).toEqual(false);
 });
 
+test('Should not create task with invalid fields', async () => {
+    const { tokens } = users[0];
+    const token = tokens[0].token;
+
+    const newTask = {
+        description: 1234,  // must be string
+        completed: 1234     // must be boolean 
+    }
+
+    // assert rejected creation
+    await request(app)
+        .post('/tasks')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newTask)
+        .expect(400)
+});
+
 test('Should get tasks for user', async () => {
     const { _id, tokens } = users[0];
     const token = tokens[0].token;
@@ -57,9 +74,49 @@ test('Should get tasks for user', async () => {
     expect(response.body.length).toEqual(numTasksExpected);
 });
 
+test('Should get user task by id', async () => {
+    const { tokens } = users[0];
+    const { _id } = tasks[0];
+    const token = tokens[0].token;
+
+    // assert successful retrieval
+    await request(app)
+        .get(`/tasks/${_id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send()
+        .expect(200);
+});
+
+test('Should delete user task', async () => {
+    const { tokens } = users[0];
+    const { _id } = tasks[0];
+    const token = tokens[0].token;
+
+    // assert successful deletion
+    await request(app)
+        .delete(`/tasks/${_id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send()
+        .expect(200);
+
+    // assert task was deleted
+    const task = await Task.findById(_id);
+    expect(task).toBeNull();
+});
+
+test('Should not delete task if not logged in', async () => {
+    const { _id } = tasks[0];
+
+    // assert rejected deletion
+    await request(app)
+        .delete(`/tasks/${_id}`)
+        .send()
+        .expect(401)
+});
+
 test('Should not delete unowned task', async () => {
     const { tokens } = users[0];
-    const { _id } = tasks[1]; // users[1] owns tasks[1]
+    const { _id } = tasks[1];
     const token = tokens[0].token;
 
     // assert rejected deletion
