@@ -19,7 +19,7 @@ test('Should create task for user', async () => {
     const { description } = tasks[0];
     const newTask = { description };
 
-    // assert successful creation
+    // assert creation
     const response = await request(app)
         .post('/tasks')
         .set('Authorization', `Bearer ${token}`)
@@ -39,8 +39,8 @@ test('Should not create task with invalid fields', async () => {
     const token = tokens[0].token;
 
     const newTask = {
-        description: 1234,  // must be string
-        completed: 1234     // must be boolean 
+        description: 1234,
+        completed: 1234
     }
 
     // assert rejected creation
@@ -63,7 +63,7 @@ test('Should get tasks for user', async () => {
         }
     });
 
-    // assert successful retrieval
+    // assert retrieval
     const response = await request(app)
         .get('/tasks')
         .set('Authorization', `Bearer ${token}`)
@@ -79,7 +79,7 @@ test('Should get user task by id', async () => {
     const { _id } = tasks[0];
     const token = tokens[0].token;
 
-    // assert successful retrieval
+    // assert retrieval
     await request(app)
         .get(`/tasks/${_id}`)
         .set('Authorization', `Bearer ${token}`)
@@ -92,7 +92,7 @@ test('Should delete user task', async () => {
     const { _id } = tasks[0];
     const token = tokens[0].token;
 
-    // assert successful deletion
+    // assert deletion
     await request(app)
         .delete(`/tasks/${_id}`)
         .set('Authorization', `Bearer ${token}`)
@@ -130,3 +130,72 @@ test('Should not delete unowned task', async () => {
     const task = await Task.findById(_id);
     expect(task).not.toBeNull();
 });
+
+test('Should update user task with new data', async () => {
+    const { tokens } = users[0];
+    const { _id } = tasks[0];
+    const token = tokens[0].token;
+
+    const updates = {
+        description: 'updated text',
+        completed: false
+    };
+
+    // assert update
+    await request(app)
+        .patch(`/tasks/${_id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(updates)
+        .expect(200);
+
+    // assert updates were saved
+    const task = await Task.findById(_id);
+    expect(task.description).toEqual(updates.description);
+    expect(task.completed).toEqual(updates.completed);
+});
+
+test('Should not update unowned task', async () => {
+    const { tokens } = users[0];
+    const { _id, description, completed } = tasks[1];
+    const token = tokens[0].token;
+
+    const updates = {
+        description: 'updated text',
+        completed: false
+    };
+
+    // assert update
+    await request(app)
+        .patch(`/tasks/${_id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(updates)
+        .expect(404);
+});
+
+test('Should not update user task with invalid data', async () => {
+    const { tokens } = users[0];
+    const { _id } = tasks[0];
+    const token = tokens[0].token;
+
+    const updates = {
+        description: 1234,
+        completed: 1234
+    };
+
+    // assert update
+    await request(app)
+        .patch(`/tasks/${_id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(updates)
+        .expect(400);
+});
+
+//
+// Task Test Ideas
+//
+// Should not fetch user task by id if unauthenticated
+// Should not fetch other users task by id
+// Should fetch only completed tasks
+// Should fetch only incomplete tasks
+// Should sort tasks by description/completed/createdAt/updatedAt
+// Should fetch page of tasks
