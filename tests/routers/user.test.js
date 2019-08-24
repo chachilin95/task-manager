@@ -11,7 +11,7 @@ beforeEach(setupDatabase);
 test('Should signup a new user', async () => {
     const { email, password, name } = users[2];
 
-    // assert successful signup
+    // assert signup
     const sendUser = { email, password, name };
     const response = await request(app)
         .post('/users')
@@ -30,10 +30,19 @@ test('Should signup a new user', async () => {
     expect(createdUser.password).not.toBe(password);
 });
 
+test('Should not signup a new user with invalid data', async () => {
+    // assert rejected signup
+    const sendUser = { email: 1234, password: 1234, name: 1234 };
+    await request(app)
+        .post('/users')
+        .send(sendUser)
+        .expect(400);
+});
+
 test('Should login an existing user', async () => {
     const { _id, email, password } = users[0];
 
-    // assert successful login
+    // assert login
     const loginUser = { email, password };
     const response = await request(app)
         .post('/users/login')
@@ -76,7 +85,7 @@ test('Should delete account for user', async () => {
     const { _id, tokens } = users[0];
     const token = tokens[0].token;
 
-    // assert successful delete
+    // assert delete
     await request(app)
         .delete('/users/me')
         .set('Authorization', `Bearer ${token}`)
@@ -86,6 +95,14 @@ test('Should delete account for user', async () => {
     // assert user was deleted from database
     const user = await User.findById(_id);
     expect(user).toBeNull();
+});
+
+test('Should not delete user if unauthenticated', async () => {
+    // assert rejected deletion
+    await request(app)
+        .delete('/users/me')
+        .send()
+        .expect(401);
 });
 
 test('Should not delete account for unauthenticated user', async () => {
@@ -99,7 +116,7 @@ test('Should upload avatar image', async () => {
     const { _id, tokens } = users[0];
     const token = tokens[0].token;
 
-    // assert successful upload
+    // assert upload
     await request(app)
         .post('/users/me/avatar')
         .set('Authorization', `Bearer ${token}`)
@@ -120,7 +137,7 @@ test('Should update user information', async () => {
         email: 'bat@man.com',
     };
 
-    // assert successful update
+    // assert update
     await request(app)
         .patch('/users/me')
         .set('Authorization', `Bearer ${token}`)
@@ -131,6 +148,36 @@ test('Should update user information', async () => {
     const user = await User.findById(_id);
     expect(user.name).toEqual(newInfo.name);
     expect(user.email).toEqual(newInfo.email);
+});
+
+test('Should not update user information with invalid data', async () => {
+    const { tokens } = users[0];
+    const token = tokens[0].token;
+
+    const newInfo = {
+        name: 1234,
+        email: 1234,
+    };
+
+    // assert rejected update
+    await request(app)
+        .patch('/users/me')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newInfo)
+        .expect(400);
+});
+
+test('Should not update user information if unauthenticated', async () => {
+    const newInfo = {
+        name: 'Bruce Wanye',
+        email: 'bat@man.com',
+    };
+
+    // assert rejected update
+    await request(app)
+        .patch('/users/me')
+        .send(newInfo)
+        .expect(401);
 });
 
 test('Should not update invalid user information', async () => {
