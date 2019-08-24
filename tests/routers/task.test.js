@@ -1,7 +1,7 @@
 const request = require('supertest');
 
 const app = require('../../src/app');
-const { setupDatabase, testUser } = require('../fixtures/db');
+const { setupDatabase } = require('../fixtures/db');
 
 // models
 const User = require('../../src/models/user');
@@ -14,7 +14,7 @@ const tasks = require('../fixtures/tasks');
 beforeEach(setupDatabase);
 
 test('Should create task for user', async () => {
-    const { tokens } = testUser;
+    const { tokens } = users[0];
     const token = tokens[0].token;
 
     const { description } = tasks[0];

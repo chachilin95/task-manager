@@ -9,7 +9,7 @@ const { setupDatabase } = require('../fixtures/db');
 beforeEach(setupDatabase);
 
 test('Should signup a new user', async () => {
-    const { email, password, name } = users[1];
+    const { email, password, name } = users[2];
 
     // assert successful signup
     const sendUser = { email, password, name };
@@ -46,7 +46,7 @@ test('Should login an existing user', async () => {
 });
 
 test('Should not login non-existent user', async () => {
-    const user = users[1];
+    const user = users[2];
 
     await request(app)
         .post('/users/login')
