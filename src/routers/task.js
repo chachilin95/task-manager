@@ -4,6 +4,14 @@ const router = new express.Router();
 const Task = require('../models/task');
 const auth = require('../middleware/auth');
 
+// greeting message
+router.get('/tasks/greeting', async (req, res) => {
+    res.send({
+        connected: true,
+        message: 'Hello from the Task router!'
+    })
+});
+
 // get all tasks
 router.get('/tasks', auth, async (req, res) => {
 

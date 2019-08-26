@@ -6,6 +6,14 @@ const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const { sendGoodbyeEmail, sendWelcomeEmail } = require('../emails/account');
 
+// greeting message
+router.get('/users/greeting', async (req, res) => {
+    res.send({
+        connected: true,
+        message: 'Hello from the User router!'
+    })
+});
+
 // get logged in user's information
 router.get('/users/me', auth, async (req, res) => {
     res.send(req.user);
