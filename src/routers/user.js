@@ -55,8 +55,8 @@ router.post('/users', async (req, res) => {
 
     try {
         await user.save();
-        sendWelcomeEmail(user.email, user.name);
         const token = await user.generateAuthToken();
+        res.cookie('auth_token', token);
         res.status(201).send({ user, token });
     } catch (error) {
         res.status(400).send(error);
@@ -69,6 +69,7 @@ router.post('/users/login', async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findByCredentials(email, password);
         const token = await user.generateAuthToken();
+        res.cookie('auth_token', token);
         res.send({ user, token });
     } catch (error) {
         res.status(400).send();
@@ -125,7 +126,6 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
 router.delete('/users/me', auth, async (req, res) => {
     try {
         await req.user.remove();
-        sendGoodbyeEmail(req.user.email, req.user.name);
         res.send(req.user);
     } catch (error) {
         res.status(500).send(error);
