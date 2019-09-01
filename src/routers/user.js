@@ -84,6 +84,7 @@ router.post('/users/logout', auth, async (req, res) => {
         });
         await req.user.save();
 
+        res.clearCookie('auth_token');
         res.send();
     } catch (error) {
         console.log(error);
